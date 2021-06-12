@@ -41,7 +41,7 @@ A _"resetdb"_ script exists that allows you to reset the database to its origina
 
 - [x] Write an _npm script_ named _"start"_ that uses `node` to run the API server.
 - [x] Write an _npm script_ named _"server"_ that uses `nodemon` to run the API server.
-- [] Install _nodemon_ as a development dependency that would not be used in production.
+- [x] Install _nodemon_ as a development dependency that would not be used in production.
 
 #### Build an API
 
