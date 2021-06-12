@@ -1,3 +1,13 @@
+const express = require('express')
+const server = express()
+
+
+
+
+server.listen(3000, ()=>
+console.log("Server running on http://localhost:3000")
+);
+
 /*
 play this: https://www.youtube.com/watch?v=d-diB65scQU
 
