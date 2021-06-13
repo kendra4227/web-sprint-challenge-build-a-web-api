@@ -1,18 +1,22 @@
-const express = require('express');
+const express = require("express");
 const server = express();
+const helmet = require("helmet");
 
-const projectRouter = require('./projects/projects-router')
-const actionsRouter =require('./actions/actions-router')
+// Complete your server here!
+// Do NOT `server.listen()` inside this file!
 
-//GLOBAL MIDDLEWARE
-server.use(express.json())
-// Configure your server here
-server.use("/",(req,res)=>{
-    res.send({message:"Server is sending "})
-    })
-// ROUTERS
-    server.use('/api/actions', actionsRouter)
-server.use('/api/projects', projectRouter)
+const projectRouter = require("./projects/projects-router");
+const actionRouter = require("./actions/actions-router");
 
-//EXPORT SERVER
-module.exports = server
+server.use(helmet());
+server.use(express.json());
+server.use(projectRouter);
+server.use(actionRouter);
+
+server.use((err, req, res, next) => {
+  res.status(500).json({
+    message: "Something went wrong",
+  });
+});
+
+module.exports = server;

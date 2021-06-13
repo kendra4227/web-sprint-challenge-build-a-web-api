@@ -1,93 +1,77 @@
 // Write your "projects" router here!
-const express = require('express')
-const router = express.Router()
-const Projects = require('./projects-model')
+const express = require("express");
+const router = express.Router();
+const db = require("./projects-model");
 
-router.get('/', (req, res) => {
-    Projects.get()
-        .then(project => {
-            res.status(200).json(project)
-        })
-        .catch(error => {
-            console.log(error)
-            res.status(500).json({error: "Couldn't get project"})
-        })
-})
+const {
+  validateProjectID,
+  validateProject,
+} = require("../middleware/middleware");
 
-router.get('/:id', (req, res) => [
-    Projects.get(req.params.id)
-    .then(project => {
-        if (project) {
-            res.status(200).json(project)
-        }
-        else {
-            res.status(404).json({error: "Couldn't get specified project."})
-        }
-    })
-])
+router.get("/api/projects", async (req, res, next) => {
+  try {
+    const allProjects = await db.get();
+    res.status(200).json(allProjects);
+  } catch (err) {
+    next(err);
+  }
+});
 
-router.post('/', (req, res) => {
+router.get("/api/projects/:id", validateProjectID, async (req, res) => {
+  res.json(req.thisProject);
+});
 
-    if (!req.body.name || !req.body.description){
-        res.status(400).json({ errorMessage: 'Missing fields'})
+router.post("/api/projects", validateProject, async (req, res, next) => {
+  try {
+    const newProject = await db.insert(req.body);
+    res.status(201).json(newProject);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put(
+  "/api/projects/:id",
+  validateProjectID,
+  validateProject,
+  async (req, res, next) => {
+    try {
+      const updatedProject = await db.update(req.params.id, req.body);
+      res.status(200).json(updatedProject);
+    } catch (err) {
+      next(err);
     }
+  }
+);
 
-    Projects.insert(req.body)
-        .then(project => {
-            res.status(201).json(project)
-        })
-        .catch(error => {
-            console.log(error)
-            res.status(500).json({error: "Missing error"})
-        })
-})
+router.delete(
+  "/api/projects/:id",
+  validateProjectID,
+  async (req, res, next) => {
+    try {
+      const deleted = await db.remove(req.params.id);
+      res
+        .status(200)
+        .json({ deleted, message: "The project has been deleted" });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
-router.put('/:id', (req, res) => {
-    Projects.update(req.params.id, req.body)
-    .then(project => {
-        if (req.body.name && req.body.description && req.body.completed) {
-            res.status(200).json(project)
-        }
-        else {
-            res.status(400).json( {error: "Missing fields"})
-        }
-    })
-    .catch (error => {
-        console.log(error)
-        res.status(400).json({ error: "Couldn't update"})
-    })
-})
+router.get("/api/projects/:id/actions", async (req, res, next) => {
+  try {
+    const actions = await db.getProjectActions(req.params.id);
+    if (!actions) {
+      res.status(404).json({
+        message: `The actions for this project id ${req.params.id} does not exist`,
+      });
+    } else {
+      res.json(actions);
+    }
+  } catch (err) {
+    next(err);
+  }
+});
 
-router.delete('/:id', (req, res) => {
-    Projects.remove(req.params.id)
-    .then(project => {
-        if (project) {
-            res.status(200).json({message: "Project deleted"})
-        }
-        else {
-            res.status(404).json({message: "Couldn't find project"})
-        }
-    })
-    .catch(error => {
-        console.log(error)
-        res.status(500).json({message: "Critical error"})
-    })
-})
-
-router.get('/:id/actions', (req, res) => {
-    Projects.getProjectActions(req.params.id)
-        .then(actions => {
-            if (actions) {
-                res.status(200).json(actions)
-            } else {
-                res.status(404).json({ error: "Couldn't find the actions array"})
-            }
-        })
-        .catch(error => {
-            console.log(error)
-            res.status(500).json({ message: "Critical error"})
-        })
-})
-
-module.exports = router
-
+module.exports = router;
