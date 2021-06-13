@@ -12,7 +12,7 @@ server.use("/",(req,res)=>{
     })
 // ROUTERS
     server.use('/api/actions', actionsRouter)
-server.use('/api/projects', projectsRouter)
+server.use('/api/projects', projectRouter)
 
 //EXPORT SERVER
 module.exports = server
