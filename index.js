@@ -1,5 +1,4 @@
-const express = require('express')
-const server = express('./api/server')
+const server = require('./api/server')
 
 
 server.listen(3000, ()=>
